@@ -1,7 +1,10 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"vinLink/web/Link"
+)
 
 func main() {
-	fmt.Println("hello world");
+	fmt.Printf("%+v", Link.New("test.com"));
 }
