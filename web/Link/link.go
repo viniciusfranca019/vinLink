@@ -1,9 +1,12 @@
 package Link
 
-import "github.com/google/uuid"
+import (
+	"github.com/google/uuid"
+)
 
 type link struct {
-	link, id string
+	link string
+	id   string
 }
 
 func New(url string) link {
@@ -24,3 +27,6 @@ func (link link) Id() string {
 	return link.id
 }
 
+func (link link) Link() string {
+	return link.link
+}
