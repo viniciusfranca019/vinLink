@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	linkList := Storage.GetData()
 
 	link := Link.New(fmt.Sprintf("test.com/%v", rand.Intn(5000)))

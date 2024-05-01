@@ -2,14 +2,20 @@ package Storage
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"os"
+	"path/filepath"
+	"runtime"
 )
 
-const filePathName string = "web/Storage/links.json"
-
 func GetData() map[string]string {
+	filePathName, err := getStorageFilepath()
+	if err != nil {
+		panic(fmt.Sprintln("error on get filePath", err.Error()))
+	}
+
 	jsonFile, err := os.Open(filePathName)
 	if err != nil {
 		fmt.Println("error on open json: ", err.Error())
@@ -31,6 +37,11 @@ func GetData() map[string]string {
 }
 
 func SaveData(linkList map[string]string) {
+	filePathName, err := getStorageFilepath()
+	if err != nil {
+		panic(fmt.Sprintln("error on get filePath", err.Error()))
+	}
+
 	file, err := os.Create(filePathName)
 
 	if err != nil {
@@ -50,4 +61,14 @@ func SaveData(linkList map[string]string) {
 	if err != nil {
 		panic("error on writing on file")
 	}
+}
+
+func getStorageFilepath() (string, error) {
+	_, filename, _, ok := runtime.Caller(1)
+
+	if !ok {
+		return "", errors.New("unable to get the filename")
+	}
+
+	return fmt.Sprintf("%v/links.json",filepath.Dir(filename)), nil
 }
