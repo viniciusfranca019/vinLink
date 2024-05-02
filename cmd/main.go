@@ -8,14 +8,15 @@ import (
 )
 
 func main() {
-	linkList := Storage.GetData()
+	storage := Storage.InitStorage()
+	linkList := storage.GetData()
 
 	link := Link.New(fmt.Sprintf("test.com/%v", rand.Intn(5000)))
 
 	linkList[link.Id()] = link.Link()
 
 
-	Storage.SaveData(linkList)
+	storage.SaveData(linkList)
 
 	fmt.Println("done")
 }

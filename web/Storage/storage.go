@@ -10,7 +10,30 @@ import (
 	"runtime"
 )
 
-func GetData() map[string]string {
+type Storage struct {}
+
+
+func InitStorage() Storage {
+	filePathName, err := getStorageFilepath()
+	handleError(err)
+
+	file, err := os.OpenFile(filePathName, os.O_RDWR|os.O_CREATE, 0666)
+	handleError(err)
+
+	defer file.Close()
+
+	start, err := file.Stat()
+	handleError(err)
+
+	if start.Size() == 0 {
+		_, err := file.WriteString("{}")
+		handleError(err)
+	}
+
+	return Storage{}
+}
+
+func (s Storage) GetData() map[string]string {
 	filePathName, err := getStorageFilepath()
 	if err != nil {
 		panic(fmt.Sprintln("error on get filePath", err.Error()))
@@ -36,7 +59,7 @@ func GetData() map[string]string {
 	return linkList
 }
 
-func SaveData(linkList map[string]string) {
+func (s Storage) SaveData(linkList map[string]string) {
 	filePathName, err := getStorageFilepath()
 	if err != nil {
 		panic(fmt.Sprintln("error on get filePath", err.Error()))
@@ -71,4 +94,10 @@ func getStorageFilepath() (string, error) {
 	}
 
 	return fmt.Sprintf("%v/links.json",filepath.Dir(filename)), nil
+}
+
+func handleError(err error) {
+	if err != nil {
+		panic(fmt.Sprintln("error: ", err.Error()))
+	}
 }
