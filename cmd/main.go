@@ -1,7 +1,9 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"math/rand"
 	"net/http"
 	"vinLink/api/Link"
@@ -10,13 +12,18 @@ import (
 )
 
 func main() {
+	router := chi.NewRouter()
 	port := "8080"
-	http.HandleFunc("/", Http.Homepage)
+
+	router.Get("/", Http.Homepage)
+	router.Post("/link", randomLink)
+	router.Get("/link/all", Http.AllLinks)
+
 	fmt.Println("listen on port", port)
-	http.ListenAndServe(":"+port, nil)
+	http.ListenAndServe(":"+port, router)
 }
 
-func randomLink() {
+func randomLink(response http.ResponseWriter, request *http.Request) {
 	storage := Storage.InitStorage()
 	linkList := storage.GetData()
 
@@ -26,5 +33,9 @@ func randomLink() {
 
 	storage.SaveData(linkList)
 
-	fmt.Println("done")
+	response.Header().Add("Content-Type", "application/json")
+
+	responseView := map[string]string{"Id": link.Id(), "Link": link.Link()}
+
+	json.NewEncoder(response).Encode(responseView)
 }
