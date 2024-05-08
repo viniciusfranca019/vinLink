@@ -4,14 +4,47 @@
     <title>{{ .Title }}</title>
 </head>
 <body>
-<h1>{{ .Header }}</h1>
-{{ if .IsLoggedIn }}
-    <h2>Welcome, {{ .Username }}</h2>
-{{ else }}
-    <h2>You are not logged in.</h2>
-{{ end }}
-<footer>
-    <p>Thank you for visiting!</p>
-</footer>
+    <header>
+        <h1>{{ .Header }}</h1>
+        {{ if .IsLoggedIn }}
+            <h2>Welcome, {{ .Username }}</h2>
+        {{ else }}
+            <h2>You are not logged in.</h2>
+        {{ end }}
+    </header>
+    <main>
+        <h1>Submit Your Link</h1>
+        <form id="formUrl" onsubmit="submitForm()">
+            <label for="url">URL</label>
+            <input type="text" id="url" name="url" required>
+            <br>
+            <br>
+            <input type="submit" value="Submit">
+        </form>
+    </main>
+    <footer>
+        <p>Thank you for visiting!</p>
+    </footer>
 </body>
+<script>
+    function submitForm() {
+        event.preventDefault();
+        const form = document.getElementById('formUrl');
+        const formData = new FormData(form);
+
+        fetch('/link', {
+            method: 'POST',
+            body: formData
+        }).then(response => response.json())
+        .then((data) => {
+            console.log(data)
+            const baseUrl = (new URL(window.location.href)).origin;
+            form.reset()
+            window.alert('Your link is: ' + baseUrl + '/' + data.id)
+        })
+        .catch(error => {
+            console.error('Error:', error);
+        });
+    }
+</script>
 </html>

@@ -2,24 +2,25 @@ package Http
 
 import (
 	"encoding/json"
-	"html/template"
+	"github.com/go-chi/chi/v5"
 	"net/http"
+	"vinLink/api/Link"
 	"vinLink/api/Storage"
 )
 
-func createLink(response http.ResponseWriter, request *http.Request) {
+func CreateLink(response http.ResponseWriter, request *http.Request) {
+	storage := Storage.InitStorage()
+	linkList := storage.GetData()
 
-}
+	link := Link.New(request.FormValue("url"))
 
-func Homepage(response http.ResponseWriter, request *http.Request) {
-	t, _ := template.ParseFiles("web/Shortner/View/Home/Home.gohtml")
-	data := map[string]interface{}{
-		"Title":      "My Page",
-		"Header":     "Hello, World!",
-		"IsLoggedIn": true,
-		"Username":   "Friend",
-	}
-	t.Execute(response, data)
+	linkList[link.Id()] = link.Link()
+
+	storage.SaveData(linkList)
+
+	response.Header().Set("Content-Type", "application/json")
+	responseView := map[string]string{"id": link.Id(), "link": link.Link()}
+	json.NewEncoder(response).Encode(responseView)
 }
 
 func AllLinks(response http.ResponseWriter, request *http.Request) {
@@ -35,4 +36,14 @@ func AllLinks(response http.ResponseWriter, request *http.Request) {
 	}
 
 	json.NewEncoder(response).Encode(responseView)
+}
+
+func RedirectToLink(response http.ResponseWriter, request *http.Request) {
+	storage := Storage.InitStorage()
+	linkList := storage.GetData()
+
+	linkId := chi.URLParam(request, "linkId")
+	url := linkList[linkId]
+
+	http.Redirect(response, request, url, 301)
 }
